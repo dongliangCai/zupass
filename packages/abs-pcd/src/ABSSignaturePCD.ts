@@ -13,7 +13,7 @@ import {
 import { sha256 } from "js-sha256";
 import JSONBig from "json-bigint";
 import { v4 as uuid } from "uuid";
-import { requestGenerateattributes, requestverify } from "./Api";
+import { requestGenerateattributes, requestSign, requestverify } from "./Api";
 import { ABSIdentityCardBody } from "./CardBody";
 
 /**
@@ -71,9 +71,11 @@ export interface ABSSignaturePCDClaim {
   identityId: string;
 
   verifyServer: string;
+
+  policy: string;
 }
 
-export type ABSSignaturePCDProof = string;
+export type ABSSignaturePCDProof = object;
 export class ABSSignaturePCD
   implements PCD<ABSSignaturePCDClaim, ABSSignaturePCDProof>
 {
@@ -127,8 +129,14 @@ export async function prove(
   console.log("33333")
 
   const identityId = identityPCD.claim.identity.commitment.toString();
+
+  const attributes = "ECCENTRIC"
+  const policy = "ECCENTRIC"
+
   // requestGenerateattributes
-  requestGenerateattributes(initArgs.ABSHolder, identityId, "AGE<18")
+  await requestGenerateattributes(initArgs.ABSHolder, identityId, attributes)
+
+  const signature = await requestSign(initArgs.ABSHolder, identityId, attributes, policy)
 
 
   console.log("4444")
@@ -136,18 +144,22 @@ export async function prove(
     identityId: identityId,
     signedMessage: args.signedMessage.value,
     verifyServer: initArgs.ABSHolder,
+    policy: policy,
   };
 
-  const proof: ABSSignaturePCDProof = "";
+  const proof: ABSSignaturePCDProof = signature;
 
   return new ABSSignaturePCD(uuid(), claim, proof);
 }
 
 export async function verify(pcd: ABSSignaturePCD): Promise<boolean> {
   // check if proof is valid
-  const validProof = await requestverify(pcd.claim.verifyServer, pcd.claim.identityId, "AGE<18");
+  const validProof = await requestverify(pcd.claim.verifyServer, pcd.claim.identityId, pcd.claim.policy);
 
-  return validProof;
+  if (validProof.result == true) {
+     return true;
+  }
+  return false;
 }
 
 export async function serialize(

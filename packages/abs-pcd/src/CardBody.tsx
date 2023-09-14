@@ -23,7 +23,7 @@ export function ABSIdentityCardBody({
       <Separator />
 
       <FieldLabel>Commitment</FieldLabel>
-      <HiddenText text={pcd.claim.identityCommitment} />
+      <HiddenText text={pcd.claim.identityId} />
       <Spacer h={8} />
 
       <FieldLabel>Signed Message</FieldLabel>
