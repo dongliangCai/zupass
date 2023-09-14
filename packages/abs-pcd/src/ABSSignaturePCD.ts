@@ -55,7 +55,8 @@ let initArgs: ABSSignaturePCDInitArgs | undefined = undefined;
 // a SemaphoreSignaturePCD is requested from a consumer application.
 export interface ABSSignaturePCDArgs {
   identity: PCDArgument<SemaphoreIdentityPCD>;
-  attriblist: string[];
+  attriblist: StringArgument;
+  policy: StringArgument;
   signedMessage: StringArgument;
 }
 
@@ -108,8 +109,6 @@ export async function prove(
     );
   }
 
-  console.log("22222")
-
   const serializedIdentityPCD = args.identity.value?.pcd;
   if (!serializedIdentityPCD) {
     throw new Error(
@@ -126,25 +125,31 @@ export async function prove(
     );
   }
 
-  console.log("33333")
+  if (args.attriblist.value === undefined) {
+    throw new Error(
+      "cannot make attribute-based signature proof: attriblist is not set"
+    );
+  }
+
+  if (args.policy.value === undefined) {
+    throw new Error(
+      "cannot make attribute-based signature proof: attriblist is not set"
+    );
+  }
 
   const identityId = identityPCD.claim.identity.commitment.toString();
 
-  const attributes = "ECCENTRIC"
-  const policy = "ECCENTRIC"
 
   // requestGenerateattributes
-  await requestGenerateattributes(initArgs.ABSHolder, identityId, attributes)
+  await requestGenerateattributes(initArgs.ABSHolder, identityId, args.attriblist.value)
 
-  const signature = await requestSign(initArgs.ABSHolder, identityId, attributes, policy)
-
-
-  console.log("4444")
+  const signature = await requestSign(initArgs.ABSHolder, identityId,  args.attriblist.value, args.policy.value, args.signedMessage.value)
+  
   const claim: ABSSignaturePCDClaim = {
     identityId: identityId,
     signedMessage: args.signedMessage.value,
     verifyServer: initArgs.ABSHolder,
-    policy: policy,
+    policy: args.policy.value,
   };
 
   const proof: ABSSignaturePCDProof = signature;
@@ -154,7 +159,7 @@ export async function prove(
 
 export async function verify(pcd: ABSSignaturePCD): Promise<boolean> {
   // check if proof is valid
-  const validProof = await requestverify(pcd.claim.verifyServer, pcd.claim.identityId, pcd.claim.policy);
+  const validProof = await requestverify(pcd.claim.verifyServer, pcd.claim.identityId,pcd.claim.policy, pcd.claim.signedMessage);
 
   if (validProof.result == true) {
      return true;
@@ -190,8 +195,8 @@ export function getDisplayOptions(pcd: ABSSignaturePCD): DisplayOptions {
  * Find documentation of Semaphore here: https://semaphore.appliedzkp.org/docs/introduction
  */
 export const ABSSignaturePCDPackage: PCDPackage<
-ABSSignaturePCDClaim,
-ABSSignaturePCDProof,
+  ABSSignaturePCDClaim,
+  ABSSignaturePCDProof,
   ABSSignaturePCDArgs,
   ABSSignaturePCDInitArgs
 > = {
@@ -204,22 +209,4 @@ ABSSignaturePCDProof,
   serialize,
   deserialize,
 };
-
-// passport client > pcds
-
-// web > passport client > pcd::verify()
-
-// web > init() > passport client
-// web > prove() > passport client::addPCD();
-// web > verify() > passport client::verifyPCD();
-
-// ABS server setup
-
-// docker nginx 
-
-// init > js (ABS server API)
-// prove > js (ABS server API)
-//       > passport server
-
-// verify > js (ABS server API)
 

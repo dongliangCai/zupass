@@ -84,7 +84,7 @@ async function loadPackages(): Promise<PCDPackage[]> {
   });
 
   await ABSSignaturePCDPackage.init({
-      ABSHolder: "http://8.219.134.174"
+      ABSHolder: "http://localhost:5000"
   });
 
   return [

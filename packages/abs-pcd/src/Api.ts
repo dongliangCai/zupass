@@ -18,12 +18,13 @@ export async function requestSign(
   id: string,
   attributes: string,
   policy: string,
+  message: string,
 ) {
   const formData = new FormData();
   formData.append("id", "semaphore-id-"+id.slice(0, 8));
   formData.append("attriblist", attributes);
-  formData.append("message", "semaphore-id-"+id.slice(0, 8))
-  formData.append("policy", policy)
+  formData.append("message", message);
+  formData.append("policy", policy);
   const response = await fetch(url + "/sign", {
     method: "POST",
     body: formData,
@@ -35,10 +36,11 @@ export async function requestverify(
   url: string,
   id: string,
   policy: string,
+  signedMessage: string,
 ) {
   const formData = new FormData();
   formData.append("id", "semaphore-id-"+id.slice(0, 8));
-  formData.append("message", "semaphore-id-"+id.slice(0, 8))
+  formData.append("message", signedMessage)
   formData.append("signpolicy", policy)
   formData.append("policy", policy)
   const response = await fetch(url + "/verify", {

@@ -18,7 +18,8 @@ export function openABSSignaturePopup(
   urlToPassportWebsite: string,
   popupUrl: string,
   messageToSign: string,
-  attriblist: string[],
+  policy: string,
+  attriblist: string,
   proveOnServer?: boolean
 ) {
   const proofUrl = constructPassportPcdGetRequestUrl<
@@ -34,7 +35,16 @@ export function openABSSignaturePopup(
         value: undefined,
         userProvided: true,
       },
-      attriblist: attriblist,
+      attriblist: {
+        argumentType: ArgumentTypeName.String,
+        value: attriblist,
+        userProvided: false,
+      },
+      policy: {
+        argumentType: ArgumentTypeName.String,
+        value: policy,
+        userProvided: false,
+      },
       signedMessage: {
         argumentType: ArgumentTypeName.String,
         value: messageToSign,
@@ -57,19 +67,20 @@ export function useABSSignatureProof(
   pcdStr: string,
   onVerified: (valid: boolean) => void
 ) {
-  const semaphoreSignaturePCD = useSerializedPCD(
+  const absSignaturePCD = useSerializedPCD(
     ABSSignaturePCDPackage,
     pcdStr
   );
 
   useEffect(() => {
-    if (semaphoreSignaturePCD) {
-      const { verify } = ABSSignaturePCDPackage;
-      verify(semaphoreSignaturePCD).then(onVerified);
+    if (absSignaturePCD) {
+        const { verify } = ABSSignaturePCDPackage;
+        verify(absSignaturePCD).then(onVerified);
     }
-  }, [semaphoreSignaturePCD, onVerified]);
+    
+  }, [absSignaturePCD, onVerified]);
 
   return {
-    signatureProof: semaphoreSignaturePCD,
+    signatureProof: absSignaturePCD,
   };
 }

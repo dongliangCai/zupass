@@ -31,31 +31,37 @@ export default function Page() {
     setSignatureProofValid(valid);
   };
 
+  const [policy, setPolicy] = useState<string>("");
+  
   const { signatureProof } = useABSSignatureProof(
     pcdStr,
     onProofVerified
   );
 
-  const [messageToSign, setMessageToSign] = useState<string>("");
-  const [serverProving, setServerProving] = useState(false);
+  // const [serverProving, setServerProving] = useState(false);
 
   return (
     <>
       <HomeLink />
-      <h2>PCDPass ABS Signature Proof</h2>
+      <h2>PCDPass Attribute-Based Signature Proof</h2>
       <p>
         This page shows a working example of an integration with PCDPass which
-        requests and verifies a semaphore signature from a holder of PCDPass.
+        requests and verifies a attribute-based signature from a holder of PCDPass.
       </p>
       <ExampleContainer>
-        <input
-          style={{ marginBottom: "8px" }}
-          placeholder="Message to sign"
-          type="text"
-          value={messageToSign}
-          onChange={(e) => setMessageToSign(e.target.value)}
-        />
-        <br />
+        <label>Policy verifier requires: (CompanyA OR CompanyB) AND (Age&gt;18 AND Salary&gt;3000)</label><br></br>
+        <label>Attributes user own: Age&gt;18 Salary&gt;3000 CompanyA</label><br></br><br/>
+        <label>Pick up your policy to sign:</label><br></br>
+        <label>
+          <input
+            placeholder="AGE&lt;18"
+            type="text"
+            value={policy}
+            onChange={(e) => setPolicy(e.target.value)}
+          />
+        </label>
+
+        <br/><br/>
         <button
           disabled={signatureProofValid}
           onClick={useCallback(
@@ -63,16 +69,17 @@ export default function Page() {
                 openABSSignaturePopup(
                 PCDPASS_URL,
                 window.location.origin + "/popup",
-                messageToSign,
-                ["test","test"],
-                serverProving
+                "test",
+                policy,
+                "Age>18 Salary>3000 CompanyA",
+                false
               ),
-            [messageToSign, serverProving]
+            [policy]
           )}
         >
-          Request Semaphore Signature
+          Request Attribute-Based Signature
         </button>
-        <label>
+        {/* <label>
           <input
             type="checkbox"
             checked={serverProving}
@@ -81,7 +88,7 @@ export default function Page() {
             }}
           />
           server-side proof
-        </label>
+        </label> */}
         {passportPendingPCDStr && (
           <>
             <PendingPCDStatusDisplay
@@ -100,7 +107,28 @@ export default function Page() {
             {signatureProofValid === true && <p>✅ Proof is valid</p>}
             <CollapsableCode
               label="PCD Response"
-              code={JSON.stringify(signatureProof, null, 2)}
+              code={
+                JSON.stringify(signatureProof, function replacer(key, value) {
+                  if (key === "verifyServer") return undefined 
+                  else return value
+                }, 2)
+              }
+            />
+          </>
+        )}
+
+        {signatureProofValid === true && (
+          <>
+            {<p>❌ Invalid proof example</p>}
+            <CollapsableCode
+              label="PCD Response"
+              code={
+                JSON.stringify(signatureProof, function replacer(key, value) {
+                  if (key === "verifyServer") return undefined 
+                  if (key === "policy") return "Salary<3000"
+                  else return value
+                }, 2)
+              }
             />
           </>
         )}
