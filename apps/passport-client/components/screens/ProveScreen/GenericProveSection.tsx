@@ -39,6 +39,7 @@ export function GenericProveSection<T extends PCDPackage = PCDPackage>({
   const [error, setError] = useState<Error | undefined>();
   const [proving, setProving] = useState(false);
   const pcdPackage = pcds.getPackage<T>(pcdType);
+  console.log("pcdtype",pcdType);
 
   const onProveClick = useCallback(async () => {
     try {
@@ -56,6 +57,7 @@ export function GenericProveSection<T extends PCDPackage = PCDPackage>({
         const pendingPCD = await requestPendingPCD(serverReq);
         onProve(undefined, undefined, pendingPCD);
       } else {
+        console.log("pcdPackage",pcdPackage.name)
         const pcd = await pcdPackage.prove(args);
         const serialized = await pcdPackage.serialize(pcd);
         onProve(pcd as any, serialized, undefined);

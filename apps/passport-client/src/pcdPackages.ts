@@ -1,3 +1,4 @@
+import { ABSSignaturePCDPackage } from "@pcd/abs-pcd";
 import { EdDSAPCDPackage } from "@pcd/eddsa-pcd";
 import { EdDSATicketPCDPackage } from "@pcd/eddsa-ticket-pcd";
 import { EthereumGroupPCDPackage } from "@pcd/ethereum-group-pcd";
@@ -82,6 +83,10 @@ async function loadPackages(): Promise<PCDPackage[]> {
     zkeyFilePath: "/zkeddsa-artifacts-unsafe/eddsaTicket.zkey"
   });
 
+  await ABSSignaturePCDPackage.init({
+      ABSHolder: "http://8.219.134.174"
+  });
+
   return [
     SemaphoreGroupPCDPackage,
     SemaphoreIdentityPCDPackage,
@@ -95,6 +100,7 @@ async function loadPackages(): Promise<PCDPackage[]> {
     RSATicketPCDPackage,
     EdDSAPCDPackage,
     EdDSATicketPCDPackage,
-    ZKEdDSATicketPCDPackage
+    ZKEdDSATicketPCDPackage,
+    ABSSignaturePCDPackage
   ];
-}
+} 

@@ -72,6 +72,9 @@ export default function Page() {
           <li>
             <a href="/pcdpass-examples/zkeddsa-proof">ZKEdDSA Ticket Proof</a>
           </li>
+          <li>
+          <a href="/pcdpass-examples/abs-proof">ABS Signature Proof</a>
+          </li>
         </ol>
       </div>
     </div>

@@ -9,3 +9,4 @@ export * from "./SemaphoreSignatureIntegration";
 export * from "./SerializedPCDIntegration";
 export * from "./User";
 export * from "./zuzalu";
+export * from "./ABSSignatureIntegration";
